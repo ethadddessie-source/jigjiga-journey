@@ -782,14 +782,35 @@ function Index() {
     );
   };
 
-  const aidatExcel = async () => {
+  const aidatExcel = async (secim: string = "buAy") => {
     const tutar = await aidatTutariniOku();
     const simdi = new Date();
-    const ayKey = `${simdi.getFullYear()}-${String(simdi.getMonth() + 1).padStart(2, "0")}`;
     const liste =
       grupFiltre === "hepsi"
         ? aidatTalebeler
         : aidatTalebeler.filter((t) => t.grup === grupFiltre);
+    if (secim === "tumu") {
+      const aylar = aidatAySecenekleri().slice().reverse();
+      excelIndir(
+        "aidat-takip-tum-aylar",
+        "Aidat Takip",
+        [
+          { baslik: "#", genislik: 6 },
+          { baslik: "Talebe", genislik: 28 },
+          ...aylar.map((a) => ({ baslik: a.ad, genislik: 14 })),
+        ],
+        liste.map((t, i) => [
+          i + 1,
+          t.isim,
+          ...aylar.map((a) => (t.aidat?.[a.key] ? "Ödedi" : "Ödemedi")),
+        ]),
+      );
+      return;
+    }
+    const ayKey =
+      secim === "buAy"
+        ? `${simdi.getFullYear()}-${String(simdi.getMonth() + 1).padStart(2, "0")}`
+        : secim;
     excelIndir(
       `aidat-takip-${ayKey}`,
       "Aidat Takip",
