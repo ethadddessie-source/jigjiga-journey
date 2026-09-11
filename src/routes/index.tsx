@@ -1521,12 +1521,32 @@ function Index() {
                 Hafızlık Listesini PDF İndir
               </span>
             </button>
+            <div className="rounded-md border border-border/60 px-3 py-2">
+              <Label className="mb-1 block text-xs text-muted-foreground">
+                Aidat listesi için ay seç
+              </Label>
+              <Select value={aidatIndirAy} onValueChange={setAidatIndirAy}>
+                <SelectTrigger className="h-9">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="buAy">Bu ay</SelectItem>
+                  <SelectItem value="tumu">Tüm aylar</SelectItem>
+                  {aidatAySecenekleri().map((a) => (
+                    <SelectItem key={a.key} value={a.key}>
+                      {a.ad}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <button
               type="button"
               className="flex w-full items-center gap-3 rounded-md border border-border/60 px-3 py-2 text-left transition-colors hover:bg-accent"
               onClick={() => {
+                const secim = aidatIndirAy;
                 setAyarlarAcik(false);
-                setTimeout(() => void aidatPdf(), 150);
+                setTimeout(() => void aidatPdf(secim), 150);
               }}
             >
               <FileDown className="h-4 w-4 text-muted-foreground" />
