@@ -1584,8 +1584,9 @@ function Index() {
               type="button"
               className="flex w-full items-center gap-3 rounded-md border border-border/60 px-3 py-2 text-left transition-colors hover:bg-accent"
               onClick={() => {
+                const secim = aidatIndirAy;
                 setAyarlarAcik(false);
-                setTimeout(() => void aidatExcel(), 150);
+                setTimeout(() => void aidatExcel(secim), 150);
               }}
             >
               <FileDown className="h-4 w-4 text-muted-foreground" />
