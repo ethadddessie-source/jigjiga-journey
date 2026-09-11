@@ -1511,6 +1511,23 @@ function Index() {
             </button>
             {hocaModu && (
               <>
+                <label className="flex w-full cursor-pointer items-center gap-3 rounded-md border border-border/60 px-3 py-2 text-left transition-colors hover:bg-accent">
+                  <FileDown className="h-4 w-4 rotate-180 text-muted-foreground" />
+                  <span className="text-sm font-medium">Aidat Talebe Listesi Excel Yükle</span>
+                  <input
+                    type="file"
+                    accept=".xlsx,.xls"
+                    className="hidden"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      e.target.value = "";
+                      if (f) {
+                        setAyarlarAcik(false);
+                        void aidatListeIceAktar(f);
+                      }
+                    }}
+                  />
+                </label>
                 <button
                   type="button"
                   className="flex w-full items-center gap-3 rounded-md border border-border/60 px-3 py-2 text-left transition-colors hover:bg-accent"
