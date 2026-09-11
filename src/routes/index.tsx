@@ -375,17 +375,20 @@ function toggleGun(mevcut: number[], gun: number): number[] {
 
 function Index() {
   const [hoca, setHoca] = useState("Hocaefendi");
-  const [talebeler, setTalebeler] = useState<Talebe[]>(() => {
-    if (typeof window === "undefined") return [];
+  const [talebeler, setTalebeler] = useState<Talebe[]>([]);
+  useEffect(() => {
     try {
       const raw = localStorage.getItem(TALEBE_CACHE_KEY);
-      if (!raw) return [];
+      if (!raw) return;
       const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? (parsed as Talebe[]) : [];
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        setTalebeler(parsed as Talebe[]);
+      }
     } catch {
-      return [];
+      /* yoksay */
     }
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [yuklendi, setYuklendi] = useState(false);
   const [yuklemeHata, setYuklemeHata] = useState<string | null>(null);
 
