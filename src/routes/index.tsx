@@ -1030,30 +1030,6 @@ function Index() {
               <h2 className="text-base font-semibold text-foreground sm:text-lg">
                 Aidat Talebe Listesi
               </h2>
-              {hocaModu && (
-                <div className="flex items-center gap-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    asChild
-                    className="gap-1.5 text-xs sm:text-sm"
-                  >
-                    <label className="cursor-pointer">
-                      <FileDown className="h-4 w-4 rotate-180" /> Excel Yükle
-                      <input
-                        type="file"
-                        accept=".xlsx,.xls"
-                        className="hidden"
-                        onChange={(e) => {
-                          const f = e.target.files?.[0];
-                          e.target.value = "";
-                          if (f) void aidatListeIceAktar(f);
-                        }}
-                      />
-                    </label>
-                  </Button>
-                </div>
-              )}
             </div>
             <Card className="overflow-hidden">
               <div className="overflow-x-auto">
@@ -1535,6 +1511,23 @@ function Index() {
             </button>
             {hocaModu && (
               <>
+                <label className="flex w-full cursor-pointer items-center gap-3 rounded-md border border-border/60 px-3 py-2 text-left transition-colors hover:bg-accent">
+                  <FileDown className="h-4 w-4 rotate-180 text-muted-foreground" />
+                  <span className="text-sm font-medium">Aidat Talebe Listesi Excel Yükle</span>
+                  <input
+                    type="file"
+                    accept=".xlsx,.xls"
+                    className="hidden"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      e.target.value = "";
+                      if (f) {
+                        setAyarlarAcik(false);
+                        void aidatListeIceAktar(f);
+                      }
+                    }}
+                  />
+                </label>
                 <button
                   type="button"
                   className="flex w-full items-center gap-3 rounded-md border border-border/60 px-3 py-2 text-left transition-colors hover:bg-accent"
