@@ -407,6 +407,7 @@ function Index() {
   const seciliDers: Ders = "kuran";
 
   const [ayarlarAcik, setAyarlarAcik] = useState(false);
+  const [aidatIndirAy, setAidatIndirAy] = useState<string>("buAy");
   const [parolaDegistirAcik, setParolaDegistirAcik] = useState(false);
   const [eskiParola, setEskiParola] = useState("");
   const [yeniParola, setYeniParola] = useState("");
