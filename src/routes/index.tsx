@@ -650,23 +650,65 @@ function Index() {
     });
   };
 
-  const aidatPdf = async () => {
+  const aidatAySecenekleri = () => {
+    const simdi = new Date();
+    const aylar: { key: string; ad: string }[] = [];
+    for (let i = 0; i < 12; i++) {
+      const d = new Date(simdi.getFullYear(), simdi.getMonth() - i, 1);
+      aylar.push({
+        key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`,
+        ad: d.toLocaleDateString("tr-TR", { month: "long", year: "numeric" }),
+      });
+    }
+    return aylar;
+  };
+
+  const aidatPdf = async (secim: string = "buAy") => {
     const tutar = await aidatTutariniOku();
     const simdi = new Date();
-    const ayKey = `${simdi.getFullYear()}-${String(simdi.getMonth() + 1).padStart(2, "0")}`;
-    const ayAdi = simdi.toLocaleDateString("tr-TR", {
-      month: "long",
-      year: "numeric",
-    });
     const liste =
       grupFiltre === "hepsi"
         ? aidatTalebeler
         : aidatTalebeler.filter((t) => t.grup === grupFiltre);
-    const odeyen = liste.filter((t) => t.aidat?.[ayKey]).length;
     const grupAdi =
       grupFiltre === "hepsi"
         ? "Tüm gruplar"
         : (GRUPLAR.find((g) => g.id === grupFiltre)?.ad ?? "Grup");
+    if (secim === "tumu") {
+      const aylar = aidatAySecenekleri().slice().reverse();
+      listeYazdir({
+        altBaslik: "Aidat Takip Listesi · Tüm Aylar",
+        bilgi: [
+          `Grup: ${grupAdi}`,
+          `Aylık aidat: ${tutar.toLocaleString("tr-TR")} Birr`,
+        ],
+        sutunlar: [
+          { baslik: "#", genislik: "6%", hiza: "center" },
+          { baslik: "Talebe", genislik: "28%" },
+          ...aylar.map((a) => ({
+            baslik: a.ad.split(" ")[0],
+            genislik: `${66 / aylar.length}%`,
+            hiza: "center" as const,
+          })),
+        ],
+        satirlar: liste.map((t, i) => [
+          i + 1,
+          t.isim,
+          ...aylar.map((a) => (t.aidat?.[a.key] ? "✓" : "–")),
+        ]),
+      });
+      return;
+    }
+    const ayKey =
+      secim === "buAy"
+        ? `${simdi.getFullYear()}-${String(simdi.getMonth() + 1).padStart(2, "0")}`
+        : secim;
+    const [yil, ayNo] = ayKey.split("-").map(Number);
+    const ayAdi = new Date(yil, ayNo - 1, 1).toLocaleDateString("tr-TR", {
+      month: "long",
+      year: "numeric",
+    });
+    const odeyen = liste.filter((t) => t.aidat?.[ayKey]).length;
     listeYazdir({
       altBaslik: `Aidat Takip Listesi · ${ayAdi}`,
       bilgi: [
