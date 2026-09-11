@@ -375,17 +375,20 @@ function toggleGun(mevcut: number[], gun: number): number[] {
 
 function Index() {
   const [hoca, setHoca] = useState("Hocaefendi");
-  const [talebeler, setTalebeler] = useState<Talebe[]>(() => {
-    if (typeof window === "undefined") return [];
+  const [talebeler, setTalebeler] = useState<Talebe[]>([]);
+  useEffect(() => {
     try {
       const raw = localStorage.getItem(TALEBE_CACHE_KEY);
-      if (!raw) return [];
+      if (!raw) return;
       const parsed = JSON.parse(raw);
-      return Array.isArray(parsed) ? (parsed as Talebe[]) : [];
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        setTalebeler(parsed as Talebe[]);
+      }
     } catch {
-      return [];
+      /* yoksay */
     }
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [yuklendi, setYuklendi] = useState(false);
   const [yuklemeHata, setYuklemeHata] = useState<string | null>(null);
 
@@ -407,6 +410,7 @@ function Index() {
   const seciliDers: Ders = "kuran";
 
   const [ayarlarAcik, setAyarlarAcik] = useState(false);
+  const [aidatIndirAy, setAidatIndirAy] = useState<string>("buAy");
   const [parolaDegistirAcik, setParolaDegistirAcik] = useState(false);
   const [eskiParola, setEskiParola] = useState("");
   const [yeniParola, setYeniParola] = useState("");
@@ -649,23 +653,65 @@ function Index() {
     });
   };
 
-  const aidatPdf = async () => {
+  const aidatAySecenekleri = () => {
+    const simdi = new Date();
+    const aylar: { key: string; ad: string }[] = [];
+    for (let i = 0; i < 12; i++) {
+      const d = new Date(simdi.getFullYear(), simdi.getMonth() - i, 1);
+      aylar.push({
+        key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`,
+        ad: d.toLocaleDateString("tr-TR", { month: "long", year: "numeric" }),
+      });
+    }
+    return aylar;
+  };
+
+  const aidatPdf = async (secim: string = "buAy") => {
     const tutar = await aidatTutariniOku();
     const simdi = new Date();
-    const ayKey = `${simdi.getFullYear()}-${String(simdi.getMonth() + 1).padStart(2, "0")}`;
-    const ayAdi = simdi.toLocaleDateString("tr-TR", {
-      month: "long",
-      year: "numeric",
-    });
     const liste =
       grupFiltre === "hepsi"
         ? aidatTalebeler
         : aidatTalebeler.filter((t) => t.grup === grupFiltre);
-    const odeyen = liste.filter((t) => t.aidat?.[ayKey]).length;
     const grupAdi =
       grupFiltre === "hepsi"
         ? "Tüm gruplar"
         : (GRUPLAR.find((g) => g.id === grupFiltre)?.ad ?? "Grup");
+    if (secim === "tumu") {
+      const aylar = aidatAySecenekleri().slice().reverse();
+      listeYazdir({
+        altBaslik: "Aidat Takip Listesi · Tüm Aylar",
+        bilgi: [
+          `Grup: ${grupAdi}`,
+          `Aylık aidat: ${tutar.toLocaleString("tr-TR")} Birr`,
+        ],
+        sutunlar: [
+          { baslik: "#", genislik: "6%", hiza: "center" },
+          { baslik: "Talebe", genislik: "28%" },
+          ...aylar.map((a) => ({
+            baslik: a.ad.split(" ")[0],
+            genislik: `${66 / aylar.length}%`,
+            hiza: "center" as const,
+          })),
+        ],
+        satirlar: liste.map((t, i) => [
+          i + 1,
+          t.isim,
+          ...aylar.map((a) => (t.aidat?.[a.key] ? "✓" : "–")),
+        ]),
+      });
+      return;
+    }
+    const ayKey =
+      secim === "buAy"
+        ? `${simdi.getFullYear()}-${String(simdi.getMonth() + 1).padStart(2, "0")}`
+        : secim;
+    const [yil, ayNo] = ayKey.split("-").map(Number);
+    const ayAdi = new Date(yil, ayNo - 1, 1).toLocaleDateString("tr-TR", {
+      month: "long",
+      year: "numeric",
+    });
+    const odeyen = liste.filter((t) => t.aidat?.[ayKey]).length;
     listeYazdir({
       altBaslik: `Aidat Takip Listesi · ${ayAdi}`,
       bilgi: [
@@ -739,14 +785,35 @@ function Index() {
     );
   };
 
-  const aidatExcel = async () => {
+  const aidatExcel = async (secim: string = "buAy") => {
     const tutar = await aidatTutariniOku();
     const simdi = new Date();
-    const ayKey = `${simdi.getFullYear()}-${String(simdi.getMonth() + 1).padStart(2, "0")}`;
     const liste =
       grupFiltre === "hepsi"
         ? aidatTalebeler
         : aidatTalebeler.filter((t) => t.grup === grupFiltre);
+    if (secim === "tumu") {
+      const aylar = aidatAySecenekleri().slice().reverse();
+      excelIndir(
+        "aidat-takip-tum-aylar",
+        "Aidat Takip",
+        [
+          { baslik: "#", genislik: 6 },
+          { baslik: "Talebe", genislik: 28 },
+          ...aylar.map((a) => ({ baslik: a.ad, genislik: 14 })),
+        ],
+        liste.map((t, i) => [
+          i + 1,
+          t.isim,
+          ...aylar.map((a) => (t.aidat?.[a.key] ? "Ödedi" : "Ödemedi")),
+        ]),
+      );
+      return;
+    }
+    const ayKey =
+      secim === "buAy"
+        ? `${simdi.getFullYear()}-${String(simdi.getMonth() + 1).padStart(2, "0")}`
+        : secim;
     excelIndir(
       `aidat-takip-${ayKey}`,
       "Aidat Takip",
@@ -1457,12 +1524,32 @@ function Index() {
                 Hafızlık Listesini PDF İndir
               </span>
             </button>
+            <div className="rounded-md border border-border/60 px-3 py-2">
+              <Label className="mb-1 block text-xs text-muted-foreground">
+                Aidat listesi için ay seç
+              </Label>
+              <Select value={aidatIndirAy} onValueChange={setAidatIndirAy}>
+                <SelectTrigger className="h-9">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="buAy">Bu ay</SelectItem>
+                  <SelectItem value="tumu">Tüm aylar</SelectItem>
+                  {aidatAySecenekleri().map((a) => (
+                    <SelectItem key={a.key} value={a.key}>
+                      {a.ad}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <button
               type="button"
               className="flex w-full items-center gap-3 rounded-md border border-border/60 px-3 py-2 text-left transition-colors hover:bg-accent"
               onClick={() => {
+                const secim = aidatIndirAy;
                 setAyarlarAcik(false);
-                setTimeout(() => void aidatPdf(), 150);
+                setTimeout(() => void aidatPdf(secim), 150);
               }}
             >
               <FileDown className="h-4 w-4 text-muted-foreground" />
@@ -1500,8 +1587,9 @@ function Index() {
               type="button"
               className="flex w-full items-center gap-3 rounded-md border border-border/60 px-3 py-2 text-left transition-colors hover:bg-accent"
               onClick={() => {
+                const secim = aidatIndirAy;
                 setAyarlarAcik(false);
-                setTimeout(() => void aidatExcel(), 150);
+                setTimeout(() => void aidatExcel(secim), 150);
               }}
             >
               <FileDown className="h-4 w-4 text-muted-foreground" />
