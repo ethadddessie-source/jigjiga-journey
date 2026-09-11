@@ -22,15 +22,11 @@ import {
   aidatTutariniDinle,
   aidatTutariKaydet,
   aidatOdemeAyarla,
-  
   GRUPLAR,
   type Grup,
   type Talebe,
 } from "@/lib/talebeler";
 import { bashHarfler } from "@/lib/foto";
-import { listeYazdir } from "@/lib/pdf";
-import { excelIndir } from "@/lib/excel";
-import { FileDown } from "lucide-react";
 
 const AY_ADLARI = [
   "Ocak",
