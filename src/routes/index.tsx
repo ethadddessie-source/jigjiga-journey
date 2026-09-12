@@ -806,6 +806,30 @@ function Index() {
     );
   };
 
+  const aidatListeSadeceIsimPdf = () => {
+    listeYazdir({
+      altBaslik: "Aidat Talebe Listesi (Sadece İsimler)",
+      bilgi: [`Toplam talebe: ${aidatTalebeler.length}`],
+      sutunlar: [
+        { baslik: "Sıra No", genislik: "15%", hiza: "center" },
+        { baslik: "Talebe İsmi", genislik: "85%" },
+      ],
+      satirlar: aidatTalebeler.map((t, i) => [i + 1, t.isim]),
+    });
+  };
+
+  const aidatListeSadeceIsimExcel = () => {
+    excelIndir(
+      "aidat-talebe-listesi-sadece-isimler",
+      "Aidat Talebe Listesi",
+      [
+        { baslik: "Sıra No", genislik: 12 },
+        { baslik: "Talebe İsmi", genislik: 40 },
+      ],
+      aidatTalebeler.map((t, i) => [i + 1, t.isim]),
+    );
+  };
+
   const aidatExcel = async (secim: string = "buAy") => {
     const tutar = await aidatTutariniOku();
     const simdi = new Date();
@@ -1616,6 +1640,32 @@ function Index() {
               <FileDown className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm font-medium">
                 Aidat Listesini Excel İndir
+              </span>
+            </button>
+            <button
+              type="button"
+              className="flex w-full items-center gap-3 rounded-md border border-border/60 px-3 py-2 text-left transition-colors hover:bg-accent"
+              onClick={() => {
+                setAyarlarAcik(false);
+                setTimeout(() => aidatListeSadeceIsimPdf(), 150);
+              }}
+            >
+              <FileDown className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium">
+                Aidat Talebe Listesi (Sadece İsim) PDF İndir
+              </span>
+            </button>
+            <button
+              type="button"
+              className="flex w-full items-center gap-3 rounded-md border border-border/60 px-3 py-2 text-left transition-colors hover:bg-accent"
+              onClick={() => {
+                setAyarlarAcik(false);
+                setTimeout(() => aidatListeSadeceIsimExcel(), 150);
+              }}
+            >
+              <FileDown className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium">
+                Aidat Talebe Listesi (Sadece İsim) Excel İndir
               </span>
             </button>
             {hocaModu && (
