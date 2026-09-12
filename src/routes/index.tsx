@@ -658,6 +658,7 @@ function Index() {
     const aylar: { key: string; ad: string }[] = [];
     for (let i = 0; i < 12; i++) {
       const d = new Date(simdi.getFullYear(), simdi.getMonth() - i, 1);
+      if (d.getFullYear() < 2026) continue;
       aylar.push({
         key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`,
         ad: d.toLocaleDateString("tr-TR", { month: "long", year: "numeric" }),
