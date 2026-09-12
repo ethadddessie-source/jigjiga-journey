@@ -655,13 +655,33 @@ function Index() {
 
   const aidatAySecenekleri = () => {
     const simdi = new Date();
+    const yil = simdi.getFullYear();
+    const ay = simdi.getMonth();
+
+    // Sadece en az bir ödeme kaydı bulunan ayları dikkate al
+    const kullanilanAylar = new Set<number>();
+    for (const t of talebeler) {
+      if (!t.aidat) continue;
+      for (const [key, val] of Object.entries(t.aidat)) {
+        if (!val) continue;
+        const [y, m] = key.split("-").map(Number);
+        if (y === yil && m >= 1 && m <= 12) {
+          kullanilanAylar.add(m - 1);
+        }
+      }
+    }
+
+    const enEski =
+      kullanilanAylar.size > 0 ? Math.min(...kullanilanAylar) : ay;
+
     const aylar: { key: string; ad: string }[] = [];
-    for (let i = 0; i < 12; i++) {
-      const d = new Date(simdi.getFullYear(), simdi.getMonth() - i, 1);
-      if (d.getFullYear() < 2026) continue;
+    for (let i = ay; i >= enEski; i--) {
       aylar.push({
-        key: `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`,
-        ad: d.toLocaleDateString("tr-TR", { month: "long", year: "numeric" }),
+        key: `${yil}-${String(i + 1).padStart(2, "0")}`,
+        ad: new Date(yil, i, 1).toLocaleDateString("tr-TR", {
+          month: "long",
+          year: "numeric",
+        }),
       });
     }
     return aylar;
