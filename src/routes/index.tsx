@@ -806,6 +806,30 @@ function Index() {
     );
   };
 
+  const aidatListeSadeceIsimPdf = () => {
+    listeYazdir({
+      altBaslik: "Aidat Talebe Listesi (Sadece İsimler)",
+      bilgi: [`Toplam talebe: ${aidatTalebeler.length}`],
+      sutunlar: [
+        { baslik: "Sıra No", genislik: "15%", hiza: "center" },
+        { baslik: "Talebe İsmi", genislik: "85%" },
+      ],
+      satirlar: aidatTalebeler.map((t, i) => [i + 1, t.isim]),
+    });
+  };
+
+  const aidatListeSadeceIsimExcel = () => {
+    excelIndir(
+      "aidat-talebe-listesi-sadece-isimler",
+      "Aidat Talebe Listesi",
+      [
+        { baslik: "Sıra No", genislik: 12 },
+        { baslik: "Talebe İsmi", genislik: 40 },
+      ],
+      aidatTalebeler.map((t, i) => [i + 1, t.isim]),
+    );
+  };
+
   const aidatExcel = async (secim: string = "buAy") => {
     const tutar = await aidatTutariniOku();
     const simdi = new Date();
