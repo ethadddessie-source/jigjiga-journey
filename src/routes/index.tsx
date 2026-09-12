@@ -815,6 +815,7 @@ function Index() {
         { baslik: "Talebe İsmi", genislik: "85%" },
       ],
       satirlar: aidatTalebeler.map((t, i) => [i + 1, t.isim]),
+      tekSayfa: true,
     });
   };
 
