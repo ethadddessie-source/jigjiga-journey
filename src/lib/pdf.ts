@@ -18,6 +18,7 @@ export type PdfTablo = {
   sutunlar: PdfSutun[];
   satirlar: (PdfSatir | (string | number)[])[];
   dosyaAdi?: string;
+  tekSayfa?: boolean;
 };
 
 function kacis(s: string | number) {
