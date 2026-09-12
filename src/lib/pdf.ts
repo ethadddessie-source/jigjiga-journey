@@ -34,6 +34,7 @@ export function listeYazdir({
   sutunlar,
   satirlar,
   dosyaAdi,
+  tekSayfa = false,
 }: PdfTablo) {
   const tarih = new Date().toLocaleDateString("tr-TR", {
     day: "2-digit",
